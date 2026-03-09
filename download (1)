@@ -1,0 +1,52 @@
+use anchor_lang::prelude::*;
+
+declare_id!("11111111111111111111111111111111"); // Esto se actualizará al compilar
+
+#[program]
+pub mod moto_business {
+    use super::*;
+
+    // Inicializar una nueva moto en el inventario
+    pub fn agregar_moto(ctx: Context<AgregarMoto>, modelo: String, precio: u64) -> Result<()> {
+        let moto = &mut ctx.accounts.moto;
+        moto.dueno = *ctx.accounts.autor.key;
+        moto.modelo = modelo;
+        moto.precio = precio;
+        moto.en_venta = true;
+        
+        msg!("Moto agregada: {} por {} Lamports", moto.modelo, moto.precio);
+        Ok(())
+    }
+
+    // Cambiar el estado de disponibilidad
+    pub fn marcar_como_vendida(ctx: Context<ActualizarMoto>) -> Result<()> {
+        let moto = &mut ctx.accounts.moto;
+        moto.en_venta = false;
+        msg!("La moto {} ha sido marcada como vendida.", moto.modelo);
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct AgregarMoto<'info> {
+    #[account(init, payer = autor, space = 8 + 32 + 32 + 8 + 1)]
+    pub moto: Account<'info, Moto>,
+    #[account(mut)]
+    pub autor: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct ActualizarMoto<'info> {
+    #[account(mut, has_one = dueno)]
+    pub moto: Account<'info, Moto>,
+    pub dueno: Signer<'info>,
+}
+
+#[account]
+pub struct Moto {
+    pub dueno: Pubkey,   // 32 bytes
+    pub modelo: String,  // ~32 bytes (estimado)
+    pub precio: u64,     // 8 bytes
+    pub en_venta: bool,  // 1 byte
+}
