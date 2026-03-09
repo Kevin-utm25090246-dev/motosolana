@@ -1,19 +1,17 @@
-[package]
-name = "moto-business"
-version = "0.1.0"
-description = "Created with Anchor"
-edition = "2021"
-
-[lib]
-crate-type = ["cdylib", "lib"]
-name = "moto_business"
-
 [features]
-no-entrypoint = []
-no-idl = []
-no-log-ix-name = []
-cpi = ["no-entrypoint"]
-default = []
+seeds = false
+skip-lint = false
 
-[dependencies]
-anchor-lang = "0.29.0"
+[programs.localnet]
+solana_autohub = "Gzi9NFXjdG9PjiTw6tUNToXz17u62Sucwrdj6kXYWLPZ"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+client = "yarn run ts-node client/*.ts"
